@@ -1,6 +1,7 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 import '../const/colors.dart';
 import '../const/theme.dart';
@@ -50,16 +51,24 @@ class TileBoardWidget extends ConsumerWidget {
                 width: tileSize,
                 height: tileSize,
                 decoration: BoxDecoration(
-                    color: tileColors[tile.value],
+                    color: tileColors[tile.value] ?? tileColorFallback,
                     borderRadius: BorderRadius.circular(6.0)),
                 child: Center(
-                    child: Text(
-                  '${tile.value}',
-                  style: TextStyle(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 24.0,
-                      color: tile.value < 8 ? textColor : textColorWhite),
-                )),
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 4.0),
+                    child: FittedBox(
+                      fit: BoxFit.scaleDown,
+                      child: Text(
+                        '${tile.value}',
+                        style: GoogleFonts.montserrat(
+                            fontWeight: FontWeight.w800,
+                            fontSize: 36.0,
+                            color:
+                                tile.value < 8 ? textColor : textColorWhite),
+                      ),
+                    ),
+                  ),
+                ),
               ),
             );
           }),

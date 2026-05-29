@@ -33,6 +33,11 @@ const color512 = Color(0xffedc950);
 const color1024 = Color(0xffedc53f);
 const color2048 = Color(0xffedc22e);
 
+//Fallback colour for tiles beyond the highest defined milestone.
+const tileColorFallback = Color(0xff15110c);
+
+//Tile colours. From 1024 up the tones get progressively darker, and 2048 is a
+//distinctly deeper amber than the gold 1024.
 const tileColors = {
   2: color2,
   4: color4,
@@ -43,6 +48,11 @@ const tileColors = {
   128: color128,
   256: color256,
   512: color512,
-  1024: color1024,
-  2048: color2048,
+  1024: Color(0xffd9a200),
+  2048: Color(0xffc07d10),
+  4096: Color(0xffa3672a),
+  8192: Color(0xff80552c),
+  16384: Color(0xff5f4430),
+  32768: Color(0xff423326),
+  65536: Color(0xff2b2018),
 };

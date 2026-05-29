@@ -4,6 +4,7 @@ import 'package:flutter_swipe_detector/flutter_swipe_detector.dart';
 
 import 'components/back_moves_button.dart';
 import 'components/button.dart';
+import 'components/celebration_overlay.dart';
 import 'components/empy_board.dart';
 import 'components/theme_toggle_button.dart';
 import 'components/undo_button.dart';
@@ -155,6 +156,7 @@ class _GameState extends ConsumerState<Game>
                     child: ThemeToggleButton(),
                   ),
                 ),
+                const CelebrationOverlay(),
               ],
             ),
           ),

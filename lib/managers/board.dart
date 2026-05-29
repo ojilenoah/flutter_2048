@@ -9,6 +9,7 @@ import '../models/tile.dart';
 import '../models/board.dart';
 
 import 'back_moves.dart';
+import 'celebration.dart';
 import 'next_direction.dart';
 import 'round.dart';
 
@@ -34,13 +35,16 @@ class BoardManager extends StateNotifier<Board> {
     state = box.get(0) ?? _newGame();
   }
 
-  // Create New Game state.
+  // Create New Game state. Best is tracked live during play, so just carry it.
   Board _newGame() {
-    return Board.newGame(state.best + state.score, [random([])]);
+    return Board.newGame(state.best, [random([])]);
   }
 
   // Start New Game
   void newGame() {
+    ref.read(celebrationProvider.notifier).state = 0;
+    ref.read(lastCelebratedProvider.notifier).state = 0;
+    ref.read(canUndoProvider.notifier).state = false;
     state = _newGame();
   }
 
@@ -94,6 +98,9 @@ class BoardManager extends StateNotifier<Board> {
 
   //Move the tile in the direction
   bool move(SwipeDirection direction) {
+    //Block moves while a milestone celebration is on screen.
+    if (ref.read(celebrationProvider) != 0) return false;
+
     bool asc =
         direction == SwipeDirection.left || direction == SwipeDirection.up;
     bool vert =
@@ -190,7 +197,17 @@ class BoardManager extends StateNotifier<Board> {
     if (tilesMoved) {
       tiles.add(random(indexes));
     }
-    state = state.copyWith(score: score, tiles: tiles);
+    //Update the high score live whenever the current score passes it.
+    state = state.copyWith(
+        score: score, tiles: tiles, best: max(state.best, score));
+
+    //Celebrate when a new highest milestone tile (2048, 4096, 8192, ...) forms.
+    final highest = tiles.fold<int>(0, (m, t) => max(m, t.value));
+    if (highest >= celebrationThreshold &&
+        highest > ref.read(lastCelebratedProvider)) {
+      ref.read(lastCelebratedProvider.notifier).state = highest;
+      ref.read(celebrationProvider.notifier).state = highest;
+    }
   }
 
   //Finish round, win or loose the game.
@@ -323,8 +340,7 @@ class BoardManager extends StateNotifier<Board> {
     }
 
     if (direction != null) {
-      move(direction);
-      return true;
+      return move(direction);
     }
     return false;
   }

@@ -18,7 +18,7 @@ publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 version: 1.0.0+1
 
 environment:
-  sdk: ">=2.17.0 <3.0.0"
+  sdk: ">=2.17.0 <4.0.0"
 
 # Dependencies specify other packages that your package needs in order to work.
 # To automatically upgrade your package dependencies to the latest versions
@@ -51,6 +51,12 @@ dependencies:
   # Used together with json_serializable to generate fromJson/toJson functions
   json_annotation: ^4.5.0
 
+  # Montserrat font for the tiles
+  google_fonts: ^6.1.0
+
+  # Confetti celebration when reaching milestones (2048, 4096, ...)
+  confetti: ^0.7.0
+
 dev_dependencies:
   flutter_test:
     sdk: flutter
@@ -67,6 +73,16 @@ dev_dependencies:
 
   # Used together with json_serializable to generate fromJson/toJson functions
   json_serializable: ^6.2.0
+
+  # Generates the launcher (app) icon for Android & iOS from logo.png
+  flutter_launcher_icons: ^0.14.1
+
+# Launcher (app) icon configuration, generated from logo.png.
+flutter_launcher_icons:
+  android: true
+  ios: true
+  image_path: "logo.png"
+  remove_alpha_ios: true
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
