@@ -16,7 +16,8 @@
       "Bash(flutter build *)",
       "Bash(flutter doctor *)",
       "Bash(gh --version)",
-      "Bash(gh auth *)"
+      "Bash(gh auth *)",
+      "Bash(flutter create *)"
     ]
   }
 }
