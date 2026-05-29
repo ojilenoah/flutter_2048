@@ -41,20 +41,10 @@ class AnimatedTile extends AnimatedWidget {
       ).animate(
         moveAnimation,
       ),
-      //scale tween used to use give "pop" effect when a merge happens
-      scale = TweenSequence<double>(
-        <TweenSequenceItem<double>>[
-          TweenSequenceItem<double>(
-            tween: Tween<double>(begin: 1.0, end: 1.5)
-                .chain(CurveTween(curve: Curves.easeOut)),
-            weight: 50.0,
-          ),
-          TweenSequenceItem<double>(
-            tween: Tween<double>(begin: 1.5, end: 1.0)
-                .chain(CurveTween(curve: Curves.easeIn)),
-            weight: 50.0,
-          ),
-        ],
+      //scale tween used to give a subtle grow-in when a merge happens
+      scale = Tween<double>(
+        begin: 0.85,
+        end: 1.0,
       ).animate(
         scaleAnimation,
       );

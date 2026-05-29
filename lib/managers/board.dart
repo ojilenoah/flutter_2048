@@ -8,6 +8,7 @@ import 'package:uuid/uuid.dart';
 import '../models/tile.dart';
 import '../models/board.dart';
 
+import 'back_moves.dart';
 import 'next_direction.dart';
 import 'round.dart';
 
@@ -133,6 +134,8 @@ class BoardManager extends StateNotifier<Board> {
 
     // Assign immutable copy of the new board state and trigger rebuild.
     state = state.copyWith(tiles: tiles, undo: state);
+    //A forward move refreshes the default single back move.
+    ref.read(canUndoProvider.notifier).state = true;
     return true;
   }
 
@@ -275,14 +278,35 @@ class BoardManager extends StateNotifier<Board> {
     return false;
   }
 
-  //undo one round only
+  //Reset the saved high score back to zero.
+  void resetBest() {
+    state = state.copyWith(best: 0);
+    save();
+  }
+
+  //Step back through previous rounds, spending back moves as you go.
   void undo() {
-    if (state.undo != null) {
-      state = state.copyWith(
-          score: state.undo!.score,
-          best: state.undo!.best,
-          tiles: state.undo!.tiles);
+    //Nothing left in the history to step back to.
+    if (state.undo == null) return;
+
+    final backMoves = ref.read(backMovesProvider.notifier);
+    final canUndo = ref.read(canUndoProvider.notifier);
+    final available = backMoves.state;
+
+    if (available < 0) {
+      //Unlimited: always step back, never deplete.
+      state = state.undo!;
+    } else if (available > 1) {
+      //Spend one of the bonus (ad) back moves and step back.
+      state = state.undo!;
+      backMoves.state = available - 1;
+    } else if (canUndo.state) {
+      //Default single back move: step back, then require a forward move
+      //before undoing again.
+      state = state.undo!;
+      canUndo.state = false;
     }
+    //Otherwise the default back move is spent; a forward move is needed.
   }
 
   //Move the tiles using the arrow keys on the keyboard.

@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../const/colors.dart';
+import '../const/theme.dart';
 import '../managers/board.dart';
 
 import 'animated_tile.dart';
@@ -65,14 +66,14 @@ class TileBoardWidget extends ConsumerWidget {
           if (board.over)
             Positioned.fill(
                 child: Container(
-              color: overlayColor,
+              color: context.game.overlay,
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Text(
                     board.won ? 'You win!' : 'Game over!',
-                    style: const TextStyle(
-                        color: textColor,
+                    style: TextStyle(
+                        color: context.game.uiText,
                         fontWeight: FontWeight.bold,
                         fontSize: 64.0),
                   ),

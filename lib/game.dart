@@ -2,11 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_swipe_detector/flutter_swipe_detector.dart';
 
+import 'components/back_moves_button.dart';
 import 'components/button.dart';
 import 'components/empy_board.dart';
+import 'components/theme_toggle_button.dart';
+import 'components/undo_button.dart';
 import 'components/score_board.dart';
 import 'components/tile_board.dart';
-import 'const/colors.dart';
+import 'const/theme.dart';
 import 'managers/board.dart';
 
 class Game extends ConsumerStatefulWidget {
@@ -52,7 +55,7 @@ class _GameState extends ConsumerState<Game>
   //The curve animation for the scale animation controller.
   late final CurvedAnimation _scaleAnimation = CurvedAnimation(
     parent: _scaleController,
-    curve: Curves.easeInOut,
+    curve: Curves.easeOut,
   );
 
   @override
@@ -80,69 +83,80 @@ class _GameState extends ConsumerState<Game>
           }
         },
         child: Scaffold(
-          backgroundColor: backgroundColor,
-          body: Column(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          backgroundColor: context.game.background,
+          body: SafeArea(
+            child: Stack(
+              children: [
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    const Text(
-                      '2048',
-                      style: TextStyle(
-                          color: textColor,
-                          fontWeight: FontWeight.bold,
-                          fontSize: 52.0),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                      child: Column(
+                        children: [
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: [
+                              Text(
+                                '2048',
+                                style: TextStyle(
+                                    color: context.game.uiText,
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 52.0),
+                              ),
+                              const ScoreBoard(),
+                            ],
+                          ),
+                          const SizedBox(
+                            height: 16.0,
+                          ),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.end,
+                            children: [
+                              const BackMovesButton(),
+                              const SizedBox(
+                                width: 16.0,
+                              ),
+                              const UndoButton(),
+                              const SizedBox(
+                                width: 16.0,
+                              ),
+                              ButtonWidget(
+                                icon: Icons.refresh,
+                                onPressed: () {
+                                  //Restart the game
+                                  ref.read(boardManager.notifier).newGame();
+                                },
+                              )
+                            ],
+                          )
+                        ],
+                      ),
                     ),
-                    Column(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      crossAxisAlignment: CrossAxisAlignment.end,
+                    const SizedBox(
+                      height: 32.0,
+                    ),
+                    Stack(
                       children: [
-                        const ScoreBoard(),
-                        const SizedBox(
-                          height: 32.0,
-                        ),
-                        Row(
-                          children: [
-                            ButtonWidget(
-                              icon: Icons.undo,
-                              onPressed: () {
-                                //Undo the round.
-                                ref.read(boardManager.notifier).undo();
-                              },
-                            ),
-                            const SizedBox(
-                              width: 16.0,
-                            ),
-                            ButtonWidget(
-                              icon: Icons.refresh,
-                              onPressed: () {
-                                //Restart the game
-                                ref.read(boardManager.notifier).newGame();
-                              },
-                            )
-                          ],
-                        )
+                        const EmptyBoardWidget(),
+                        TileBoardWidget(
+                            moveAnimation: _moveAnimation,
+                            scaleAnimation: _scaleAnimation)
                       ],
                     )
                   ],
                 ),
-              ),
-              const SizedBox(
-                height: 32.0,
-              ),
-              Stack(
-                children: [
-                  const EmptyBoardWidget(),
-                  TileBoardWidget(
-                      moveAnimation: _moveAnimation,
-                      scaleAnimation: _scaleAnimation)
-                ],
-              )
-            ],
+                const Align(
+                  alignment: Alignment.topRight,
+                  child: Padding(
+                    padding: EdgeInsets.all(16.0),
+                    child: ThemeToggleButton(),
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
       ),

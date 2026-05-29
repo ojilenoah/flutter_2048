@@ -9,6 +9,18 @@ const buttonColor = Color(0xff8f7a66);
 const scoreColor = Color(0xffbbada0);
 const overlayColor = Color.fromRGBO(238, 228, 218, 0.73);
 
+//Darker shades of the 2048 palette used as the Duolingo-style button "shelf".
+const buttonColorShadow = Color(0xff73604f);
+const scoreColorShadow = Color(0xff998e83);
+const color2048Shadow = Color(0xffc29f26);
+
+//Duolingo-inspired neutrals used for dialogs and card borders.
+const duoRed = Color(0xffff4b4b);
+const duoRedShadow = Color(0xffea2b2b);
+const duoGray = Color(0xff4b4b4b);
+const duoGrayLight = Color(0xffafafaf);
+const duoBorder = Color(0xffe5e5e5);
+
 const color2 = Color(0xffeee4da);
 const color4 = Color(0xffeee1c9);
 const color8 = Color(0xfff3b27a);

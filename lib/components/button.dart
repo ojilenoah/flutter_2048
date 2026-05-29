@@ -2,41 +2,43 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../const/colors.dart';
+import 'duo_button.dart';
 
 class ButtonWidget extends ConsumerWidget {
-  const ButtonWidget(
-      {super.key, this.text, this.icon, required this.onPressed});
+  const ButtonWidget({super.key, this.text, this.icon, this.onPressed});
 
   final String? text;
   final IconData? icon;
-  final VoidCallback onPressed;
+  //A null callback renders the button in a muted, disabled state.
+  final VoidCallback? onPressed;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     if (icon != null) {
-      //Button Widget with icon for Undo and Restart Game button.
-      return Container(
-        decoration: BoxDecoration(
-            color: scoreColor, borderRadius: BorderRadius.circular(8.0)),
-        child: IconButton(
-            color: textColorWhite,
-            onPressed: onPressed,
-            icon: Icon(
-              icon,
-              size: 24.0,
-            )),
+      //Icon button (Undo / Restart): 2048 tan with the Duolingo 3D shelf.
+      return DuoButton(
+        color: scoreColor,
+        shadowColor: scoreColorShadow,
+        onPressed: onPressed,
+        padding: const EdgeInsets.all(12.0),
+        child: Icon(
+          icon,
+          color: Colors.white,
+          size: 24.0,
+        ),
       );
     }
-    //Button Widget with text for New Game and Try Again button.
-    return ElevatedButton(
-        style: ButtonStyle(
-            padding: MaterialStateProperty.all<EdgeInsets>(
-                const EdgeInsets.all(16.0)),
-            backgroundColor: MaterialStateProperty.all<Color>(buttonColor)),
-        onPressed: onPressed,
-        child: Text(
-          text!,
-          style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18.0),
-        ));
+    //Text button (New Game / Try Again): 2048 brown with the Duolingo 3D shelf.
+    return DuoButton(
+      color: buttonColor,
+      shadowColor: buttonColorShadow,
+      onPressed: onPressed,
+      padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 14.0),
+      child: Text(
+        text!.toUpperCase(),
+        style: const TextStyle(
+            color: Colors.white, fontWeight: FontWeight.bold, fontSize: 18.0),
+      ),
+    );
   }
 }

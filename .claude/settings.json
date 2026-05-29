@@ -1,0 +1,22 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(flutter --version)",
+      "Bash(flutter pub *)",
+      "Bash(flutter devices *)",
+      "Bash(flutter run *)",
+      "Bash(flutter analyze *)",
+      "PowerShell(Get-NetTCPConnection -LocalPort 8080 -State Listen -ErrorAction SilentlyContinue | Select-Object LocalAddress,LocalPort,OwningProcess,@{N='Process';E={\\(Get-Process -Id $_.OwningProcess\\).ProcessName}})",
+      "PowerShell(Get-NetTCPConnection -LocalPort 8080 -ErrorAction SilentlyContinue)",
+      "PowerShell(Get-Process dart,flutter_tester,chrome -ErrorAction SilentlyContinue)",
+      "PowerShell(\"---\")",
+      "PowerShell(Get-Process -Id 17764 -ErrorAction SilentlyContinue)",
+      "PowerShell($c = Get-NetTCPConnection -LocalPort 8080 -State Listen -ErrorAction SilentlyContinue; if \\($c\\) { $c.OwningProcess | Sort-Object -Unique | ForEach-Object { Stop-Process -Id $_ -Force; \"killed $_\" } } else { \"nothing on 8080\" })",
+      "Bash(dart format *)",
+      "Bash(flutter build *)",
+      "Bash(flutter doctor *)",
+      "Bash(gh --version)",
+      "Bash(gh auth *)"
+    ]
+  }
+}

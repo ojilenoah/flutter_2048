@@ -1,7 +1,7 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
 
-import '../const/colors.dart';
+import '../const/theme.dart';
 
 class EmptyBoardWidget extends StatelessWidget {
   const EmptyBoardWidget({super.key});
@@ -22,7 +22,8 @@ class EmptyBoardWidget extends StatelessWidget {
       width: boardSize,
       height: boardSize,
       decoration: BoxDecoration(
-          color: boardColor, borderRadius: BorderRadius.circular(6.0)),
+          color: context.game.boardBackground,
+          borderRadius: BorderRadius.circular(6.0)),
       child: Stack(
         children: List.generate(16, (i) {
           //Render the empty board in 4x4 GridView
@@ -40,7 +41,7 @@ class EmptyBoardWidget extends StatelessWidget {
               width: tileSize,
               height: tileSize,
               decoration: BoxDecoration(
-                  color: emptyTileColor,
+                  color: context.game.emptyTile,
                   borderRadius: BorderRadius.circular(6.0)),
             ),
           );
