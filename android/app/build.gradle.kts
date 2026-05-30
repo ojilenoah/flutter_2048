@@ -19,7 +19,8 @@ android {
         applicationId = "com.example.flutter_2048"
         // You can update the following values to match your application needs.
         // For more information, see: https://flutter.dev/to/review-gradle-config.
-        minSdk = flutter.minSdkVersion
+        //AdMob (google_mobile_ads) requires Android API 23 (Android 6.0) or higher.
+        minSdk = maxOf(flutter.minSdkVersion, 23)
         targetSdk = flutter.targetSdkVersion
         versionCode = flutter.versionCode
         versionName = flutter.versionName

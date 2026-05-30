@@ -44,6 +44,10 @@ dependencies:
   # Easily detect Swipes
   flutter_swipe_detector: ^2.0.0
 
+  # Google Mobile Ads (AdMob). Used for the "watch ad → +5 rewinds" reward.
+  # Android/iOS only — the AdService has a web no-op fallback.
+  google_mobile_ads: ^5.1.0
+
   #key-value database which we will use to save game state
   hive: ^2.1.1
   hive_flutter: ^1.1.0

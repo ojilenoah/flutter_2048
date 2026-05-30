@@ -3,8 +3,10 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../const/colors.dart';
 import '../const/theme.dart';
+import '../managers/ad_service.dart';
 import '../managers/back_moves.dart';
 import 'duo_button.dart';
+import 'payment_page.dart';
 
 //Shows how many back (undo) moves the player has left in its own box.
 //Tapping it opens the top-up sheet to earn or buy more.
@@ -70,12 +72,16 @@ class BackMovesButton extends ConsumerWidget {
               DuoButton(
                 color: buttonColor,
                 shadowColor: buttonColorShadow,
-                //Placeholder reward; real ad integration comes later.
-                onPressed: () {
+                //Shows a real AdMob rewarded ad on mobile, no-op on web.
+                //The +5 is granted only when the SDK reports a reward.
+                onPressed: () async {
+                  final navigator = Navigator.of(context);
                   final notifier = ref.read(backMovesProvider.notifier);
+                  final adService = ref.read(adServiceProvider);
+                  navigator.pop();
+                  final earned = await adService.showRewardedAd();
                   //Don't downgrade an unlimited (-1) balance by adding to it.
-                  if (notifier.state >= 0) notifier.state += 5;
-                  Navigator.of(context).pop();
+                  if (earned && notifier.state >= 0) notifier.state += 5;
                 },
                 child: const Text(
                   'WATCH AD  ·  +5',
@@ -89,10 +95,13 @@ class BackMovesButton extends ConsumerWidget {
               DuoButton(
                 color: color2048,
                 shadowColor: color2048Shadow,
-                //Placeholder purchase; real in-app purchase comes later.
+                //Opens the demo payment page. Replace with `in_app_purchase`
+                //triggering the store's native payment sheet for production.
                 onPressed: () {
-                  ref.read(backMovesProvider.notifier).state = -1;
-                  Navigator.of(context).pop();
+                  final navigator = Navigator.of(context);
+                  navigator.pop();
+                  navigator.push(MaterialPageRoute(
+                      builder: (_) => const PaymentPage()));
                 },
                 child: const Text(
                   'GO UNLIMITED',

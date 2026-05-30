@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 
 import 'const/theme.dart';
+import 'managers/ad_service.dart';
 import 'managers/theme_mode.dart';
 import 'models/board_adapter.dart';
 
@@ -21,11 +22,23 @@ void main() async {
   runApp(const ProviderScope(child: App()));
 }
 
-class App extends ConsumerWidget {
+class App extends ConsumerStatefulWidget {
   const App({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<App> createState() => _AppState();
+}
+
+class _AppState extends ConsumerState<App> {
+  @override
+  void initState() {
+    super.initState();
+    //Kick off the AdMob SDK + preload a rewarded ad. No-op on web/desktop.
+    ref.read(adServiceProvider).init();
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final themeMode = ref.watch(themeModeProvider);
     return MaterialApp(
       title: '2048',
