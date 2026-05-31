@@ -334,8 +334,11 @@ class _ButtonGrid extends StatelessWidget {
               child: _LinkButton(
                 label: 'Download',
                 icon: Icons.download,
+                //Points at the GitHub Actions workflow that builds the
+                //APK on every push to main — visitors grab the latest
+                //artifact from the most recent successful run.
                 url:
-                    'https://github.com/ojilenoah/flutter_2048/releases/latest',
+                    'https://github.com/ojilenoah/flutter_2048/actions/workflows/build-apk.yml',
                 color: duoRed,
                 shadowColor: duoRedShadow,
                 foreground: Colors.white,
