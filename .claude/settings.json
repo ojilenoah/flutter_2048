@@ -18,7 +18,8 @@
       "Bash(gh --version)",
       "Bash(gh auth *)",
       "Bash(flutter create *)",
-      "Bash(dart run *)"
+      "Bash(dart run *)",
+      "Bash(where flutter *)"
     ]
   }
 }

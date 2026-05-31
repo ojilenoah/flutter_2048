@@ -8,8 +8,9 @@ import '../game.dart';
 import 'duo_button.dart';
 
 //Breakpoint above which the desktop layout kicks in: game inside a phone
-//frame on the left, info side panel on the right. Below this width (and on
-//all native platforms) the game renders full-screen exactly as before.
+//frame on the left, info side panel on the right. Below this width the
+//game renders full-screen and an info button overlays the top-left
+//(web only — native mobile shows the game alone).
 const double _desktopBreakpoint = 900.0;
 
 //Logical "phone screen" size the Game widget pretends to render onto when
@@ -18,9 +19,12 @@ const double _desktopBreakpoint = 900.0;
 const double _phoneLogicalWidth = 400.0;
 const double _phoneLogicalHeight = 820.0;
 
-//Wraps the game so that on a wide web window the game appears inside a
-//mobile-shaped frame next to a side panel describing the project. On
-//mobile screens and all native platforms it just returns the game directly.
+//Phone-frame bezel: chunky and very dark, like the bezel of a real device
+//in a press-kit screenshot.
+const Color _frameBezel = Color(0xff1a1a1a);
+const double _frameBorderWidth = 8.0;
+const double _frameRadius = 20.0;
+
 class WebShell extends StatelessWidget {
   const WebShell({super.key});
 
@@ -31,13 +35,17 @@ class WebShell extends StatelessWidget {
     return LayoutBuilder(
       builder: (context, constraints) {
         if (constraints.maxWidth < _desktopBreakpoint) {
-          return const Game();
+          return const _MobileWebLayout();
         }
         return _DesktopLayout(maxHeight: constraints.maxHeight);
       },
     );
   }
 }
+
+//-----------------------------------------------------------------------
+// Desktop: phone frame on the left, info side panel on the right.
+//-----------------------------------------------------------------------
 
 class _DesktopLayout extends StatelessWidget {
   const _DesktopLayout({required this.maxHeight});
@@ -46,14 +54,14 @@ class _DesktopLayout extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    //Scale the phone frame down if the browser window is too short to
-    //accommodate the full logical phone size with breathing room.
     final available = maxHeight - 48.0;
     final scale = available < _phoneLogicalHeight
         ? available / _phoneLogicalHeight
         : 1.0;
-    final frameWidth = _phoneLogicalWidth * scale;
-    final frameHeight = _phoneLogicalHeight * scale;
+    final frameWidth =
+        _phoneLogicalWidth * scale + _frameBorderWidth * 2;
+    final frameHeight =
+        _phoneLogicalHeight * scale + _frameBorderWidth * 2;
 
     return Scaffold(
       backgroundColor: context.game.background,
@@ -62,16 +70,9 @@ class _DesktopLayout extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.center,
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            _PhoneFrame(
-              width: frameWidth,
-              height: frameHeight,
-              scale: scale,
-            ),
+            _PhoneFrame(width: frameWidth, height: frameHeight),
             const SizedBox(width: 48.0),
-            const SizedBox(
-              width: 360.0,
-              child: _SidePanel(),
-            ),
+            const SizedBox(width: 400.0, child: _InfoContent()),
           ],
         ),
       ),
@@ -79,20 +80,110 @@ class _DesktopLayout extends StatelessWidget {
   }
 }
 
-//Minimal flat frame: thin border, lightly rounded corners, no shadow. The
-//Game inside renders against a MediaQuery override that reports a phone-
-//sized viewport so its internal layout math fits the frame correctly. If
-//the browser is too short we scale the whole thing down via Transform.
+//-----------------------------------------------------------------------
+// Mobile web: full-screen game + a floating info button (top-left) that
+// opens a bottom sheet containing the same content as the desktop panel.
+//-----------------------------------------------------------------------
+
+class _MobileWebLayout extends StatelessWidget {
+  const _MobileWebLayout();
+
+  @override
+  Widget build(BuildContext context) {
+    return Stack(
+      children: [
+        const Game(),
+        Positioned(
+          top: 16.0,
+          left: 16.0,
+          child: SafeArea(child: _InfoFab(onTap: () => _openSheet(context))),
+        ),
+      ],
+    );
+  }
+
+  void _openSheet(BuildContext context) {
+    showModalBottomSheet<void>(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: context.game.background,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24.0)),
+      ),
+      builder: (ctx) => DraggableScrollableSheet(
+        expand: false,
+        initialChildSize: 0.85,
+        minChildSize: 0.4,
+        maxChildSize: 0.95,
+        builder: (_, controller) => SingleChildScrollView(
+          controller: controller,
+          padding: const EdgeInsets.fromLTRB(20.0, 12.0, 20.0, 24.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              //Drag handle
+              Center(
+                child: Container(
+                  width: 40.0,
+                  height: 4.0,
+                  margin: const EdgeInsets.only(bottom: 16.0),
+                  decoration: BoxDecoration(
+                    color: ctx.game.cardBorder,
+                    borderRadius: BorderRadius.circular(2.0),
+                  ),
+                ),
+              ),
+              const _InfoContent(),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _InfoFab extends StatelessWidget {
+  const _InfoFab({required this.onTap});
+
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(24.0),
+        child: Container(
+          width: 44.0,
+          height: 44.0,
+          decoration: BoxDecoration(
+            color: context.game.cardBackground,
+            shape: BoxShape.circle,
+            border: Border.all(color: context.game.cardBorder, width: 2.0),
+          ),
+          alignment: Alignment.center,
+          child: Icon(
+            Icons.info_outline,
+            color: context.game.uiText,
+            size: 22.0,
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+//-----------------------------------------------------------------------
+// Phone frame: chunky dark bezel containing the Game rendered against
+// an overridden MediaQuery so the game's internal layout math fits.
+//-----------------------------------------------------------------------
+
 class _PhoneFrame extends StatelessWidget {
-  const _PhoneFrame({
-    required this.width,
-    required this.height,
-    required this.scale,
-  });
+  const _PhoneFrame({required this.width, required this.height});
 
   final double width;
   final double height;
-  final double scale;
 
   @override
   Widget build(BuildContext context) {
@@ -115,8 +206,9 @@ class _PhoneFrame extends StatelessWidget {
       width: width,
       height: height,
       decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(16.0),
-        border: Border.all(color: context.game.cardBorder, width: 2.0),
+        borderRadius: BorderRadius.circular(_frameRadius),
+        border: Border.all(color: _frameBezel, width: _frameBorderWidth),
+        color: _frameBezel,
       ),
       clipBehavior: Clip.antiAlias,
       child: FittedBox(
@@ -128,13 +220,16 @@ class _PhoneFrame extends StatelessWidget {
   }
 }
 
-class _SidePanel extends StatelessWidget {
-  const _SidePanel();
+//-----------------------------------------------------------------------
+// Shared content: title, blurb, heads-up, name, and the 2x2 button grid.
+// Used by both the desktop side panel and the mobile info bottom sheet.
+//-----------------------------------------------------------------------
+
+class _InfoContent extends StatelessWidget {
+  const _InfoContent();
 
   @override
   Widget build(BuildContext context) {
-    //Local rename so the top-level const `textColor` from colors.dart stays
-    //visible inside the `const _LinkButton(...)` calls below.
     final panelText = context.game.uiText;
     final subtleColor = panelText.withValues(alpha: 0.7);
 
@@ -147,7 +242,7 @@ class _SidePanel extends StatelessWidget {
           style: TextStyle(
             color: panelText,
             fontWeight: FontWeight.bold,
-            fontSize: 36.0,
+            fontSize: 32.0,
           ),
         ),
         const SizedBox(height: 8.0),
@@ -181,38 +276,80 @@ class _SidePanel extends StatelessWidget {
           ),
         ),
         const SizedBox(height: 16.0),
-        const _LinkButton(
-          label: 'View Portfolio',
-          icon: Icons.public,
-          url: 'https://noahojile.com',
-          color: buttonColor,
-          shadowColor: buttonColorShadow,
-          foreground: Colors.white,
+        const _ButtonGrid(),
+      ],
+    );
+  }
+}
+
+//-----------------------------------------------------------------------
+// 2x2 grid of DuoButtons.
+//-----------------------------------------------------------------------
+
+class _ButtonGrid extends StatelessWidget {
+  const _ButtonGrid();
+
+  @override
+  Widget build(BuildContext context) {
+    return const Column(
+      children: [
+        Row(
+          children: [
+            Expanded(
+              child: _LinkButton(
+                label: 'Portfolio',
+                icon: Icons.public,
+                url: 'https://noahojile.com',
+                color: buttonColor,
+                shadowColor: buttonColorShadow,
+                foreground: Colors.white,
+              ),
+            ),
+            SizedBox(width: 12.0),
+            Expanded(
+              child: _LinkButton(
+                label: 'GitHub',
+                icon: Icons.code,
+                url: 'https://github.com/ojilenoah/flutter_2048',
+                color: duoGray,
+                shadowColor: Color(0xff2f2f2f),
+                foreground: Colors.white,
+              ),
+            ),
+          ],
         ),
-        const SizedBox(height: 12.0),
-        const _LinkButton(
-          label: 'GitHub Repo',
-          icon: Icons.code,
-          url: 'https://github.com/ojilenoah/flutter_2048',
-          color: duoGray,
-          shadowColor: Color(0xff2f2f2f),
-          foreground: Colors.white,
-        ),
-        const SizedBox(height: 12.0),
-        const _LinkButton(
-          label: 'Buy Me a Coffee',
-          icon: Icons.coffee,
-          url: 'https://buymeacoffee.com/ojilenoah',
-          color: color2048,
-          shadowColor: color2048Shadow,
-          foreground: textColor,
+        SizedBox(height: 12.0),
+        Row(
+          children: [
+            Expanded(
+              child: _LinkButton(
+                label: 'Coffee',
+                icon: Icons.coffee,
+                url: 'https://buymeacoffee.com/ojilenoah',
+                color: color2048,
+                shadowColor: color2048Shadow,
+                foreground: textColor,
+              ),
+            ),
+            SizedBox(width: 12.0),
+            Expanded(
+              child: _LinkButton(
+                label: 'Download',
+                icon: Icons.download,
+                url:
+                    'https://github.com/ojilenoah/flutter_2048/releases/latest',
+                color: duoRed,
+                shadowColor: duoRedShadow,
+                foreground: Colors.white,
+              ),
+            ),
+          ],
         ),
       ],
     );
   }
 }
 
-//Duolingo-style raised button that opens an external URL in a new tab.
 class _LinkButton extends StatelessWidget {
   const _LinkButton({
     required this.label,
@@ -244,11 +381,12 @@ class _LinkButton extends StatelessWidget {
       color: color,
       shadowColor: shadowColor,
       onPressed: _open,
+      padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 14.0),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
           Icon(icon, color: foreground, size: 18.0),
-          const SizedBox(width: 10.0),
+          const SizedBox(width: 8.0),
           Text(
             label,
             style: TextStyle(
