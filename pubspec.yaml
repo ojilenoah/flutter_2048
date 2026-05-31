@@ -86,11 +86,19 @@ dev_dependencies:
   flutter_launcher_icons: ^0.14.1
 
 # Launcher (app) icon configuration, generated from logo.png.
+# `image_path` produces the legacy square icon (Android <8, iOS).
+# `adaptive_icon_*` produces the modern Android 8+ adaptive icon, which the
+# launcher composes with its own mask shape (circle / squircle / rounded
+# square). The foreground image's visible content must sit in the central
+# ~66% "safe zone" — anything outside can be cropped by the launcher mask.
 flutter_launcher_icons:
   android: true
   ios: true
   image_path: "logo.png"
   remove_alpha_ios: true
+  adaptive_icon_background: "#0d0d0d"
+  adaptive_icon_foreground: "logo.png"
+  min_sdk_android: 23
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec

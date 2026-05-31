@@ -1,11 +1,11 @@
 {
-    "name": "flutter_2048",
-    "short_name": "flutter_2048",
+    "name": "2048 rewind | by noah ojile",
+    "short_name": "2048 Rewind",
     "start_url": ".",
     "display": "standalone",
-    "background_color": "#0175C2",
-    "theme_color": "#0175C2",
-    "description": "A new Flutter project.",
+    "background_color": "#faf8ef",
+    "theme_color": "#faf8ef",
+    "description": "2048 Rewind — a take on the classic 2048 with undoable moves. Web build by Noah Ojile.",
     "orientation": "portrait-primary",
     "prefer_related_applications": false,
     "icons": [

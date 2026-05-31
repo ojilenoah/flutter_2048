@@ -20,10 +20,9 @@ const double _phoneLogicalWidth = 400.0;
 const double _phoneLogicalHeight = 820.0;
 
 //Phone-frame bezel: chunky and very dark, like the bezel of a real device
-//in a press-kit screenshot.
+//in a press-kit screenshot. Square corners (no radius) per design.
 const Color _frameBezel = Color(0xff1a1a1a);
 const double _frameBorderWidth = 8.0;
-const double _frameRadius = 20.0;
 
 class WebShell extends StatelessWidget {
   const WebShell({super.key});
@@ -206,11 +205,10 @@ class _PhoneFrame extends StatelessWidget {
       width: width,
       height: height,
       decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(_frameRadius),
         border: Border.all(color: _frameBezel, width: _frameBorderWidth),
         color: _frameBezel,
       ),
-      clipBehavior: Clip.antiAlias,
+      clipBehavior: Clip.hardEdge,
       child: FittedBox(
         fit: BoxFit.contain,
         alignment: Alignment.center,
