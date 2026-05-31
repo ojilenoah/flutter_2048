@@ -3,12 +3,12 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 
+import 'components/web_shell.dart';
 import 'const/theme.dart';
 import 'managers/ad_service.dart';
 import 'managers/theme_mode.dart';
+import 'models/board.dart';
 import 'models/board_adapter.dart';
-
-import 'game.dart';
 
 void main() async {
   //Allow only portrait mode on Android & iOS
@@ -19,6 +19,9 @@ void main() async {
   //Make sure Hive is initialized first and only after register the adapter.
   await Hive.initFlutter();
   Hive.registerAdapter(BoardAdapter());
+  //Pre-open the saved-game box so the board/score paint correct on first
+  //frame instead of flashing an empty board while disk I/O completes.
+  await Hive.openBox<Board>('boardBox');
   runApp(const ProviderScope(child: App()));
 }
 
@@ -45,7 +48,7 @@ class _AppState extends ConsumerState<App> {
       theme: ThemeData.light().copyWith(extensions: const [GameTheme.light]),
       darkTheme: ThemeData.dark().copyWith(extensions: const [GameTheme.dark]),
       themeMode: themeMode,
-      home: const Game(),
+      home: const WebShell(),
     );
   }
 }

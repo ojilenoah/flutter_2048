@@ -24,13 +24,10 @@ class BoardManager extends StateNotifier<Board> {
     load();
   }
 
-  void load() async {
-    //Access the box and get the first item at index 0
-    //which will always be just one item of the Board model
-    //and here we don't need to call fromJson function of the board model
-    //in order to construct the Board model
-    //instead the adapter we added earlier will do that automatically.
-    var box = await Hive.openBox<Board>('boardBox');
+  void load() {
+    //The box is pre-opened in main() so we can read it synchronously here —
+    //state is set before the first paint, no empty-board flash.
+    var box = Hive.box<Board>('boardBox');
     //If there is no save locally it will start a new game.
     state = box.get(0) ?? _newGame();
   }

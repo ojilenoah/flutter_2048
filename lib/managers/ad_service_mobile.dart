@@ -3,22 +3,23 @@ import 'dart:io' show Platform;
 
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 
-//Real AdService backed by AdMob. Uses Google's sample ad unit IDs so the app
-//can be tested without a real AdMob account; swap in your real unit IDs from
-//admob.google.com before releasing.
+//Real AdService backed by AdMob. Uses the project's real ad unit IDs from
+//admob.google.com. iOS is still on a test unit ID until a separate iOS app
+//is created in the AdMob console.
 class AdService {
   RewardedAd? _ad;
-  bool _loading = false;
+  Completer<RewardedAd?>? _loadCompleter;
   bool _initialized = false;
 
-  //Google's sample/test rewarded ad unit IDs.
-  static const String _testRewardedAndroid =
-      'ca-app-pub-3940256099942544/5224354917';
+  static const String _rewardedAndroid =
+      'ca-app-pub-7688079183268135/6737681197';
+  //iOS still uses Google's sample/test ad unit ID — replace when you create
+  //a separate iOS app + rewarded ad unit in the AdMob console.
   static const String _testRewardedIOS =
       'ca-app-pub-3940256099942544/1712485313';
 
   String get _adUnitId =>
-      Platform.isIOS ? _testRewardedIOS : _testRewardedAndroid;
+      Platform.isIOS ? _testRewardedIOS : _rewardedAndroid;
 
   Future<void> init() async {
     if (_initialized) return;
@@ -28,29 +29,37 @@ class AdService {
   }
 
   void _load() {
-    if (_loading || _ad != null) return;
-    _loading = true;
+    if (_loadCompleter != null || _ad != null) return;
+    final completer = Completer<RewardedAd?>();
+    _loadCompleter = completer;
     RewardedAd.load(
       adUnitId: _adUnitId,
       request: const AdRequest(),
       rewardedAdLoadCallback: RewardedAdLoadCallback(
         onAdLoaded: (ad) {
           _ad = ad;
-          _loading = false;
+          _loadCompleter = null;
+          if (!completer.isCompleted) completer.complete(ad);
         },
         onAdFailedToLoad: (_) {
           _ad = null;
-          _loading = false;
+          _loadCompleter = null;
+          if (!completer.isCompleted) completer.complete(null);
         },
       ),
     );
   }
 
   Future<bool> showRewardedAd() async {
+    //If no ad is ready yet, wait for the in-flight load (or kick one off)
+    //instead of failing immediately — that way users don't have to tap twice.
     if (_ad == null) {
-      //No ad ready yet — kick off a load so it's ready next time.
-      _load();
-      return false;
+      if (_loadCompleter == null) _load();
+      final ad = await _loadCompleter!.future.timeout(
+        const Duration(seconds: 10),
+        onTimeout: () => null,
+      );
+      if (ad == null) return false;
     }
     final completer = Completer<bool>();
     final ad = _ad!;
